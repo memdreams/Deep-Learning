@@ -1,4 +1,5 @@
 import numpy
+import os
 import torch
 import random
 import torch.nn.functional as F
@@ -7,21 +8,39 @@ import representData as data
 import projE_Variant
 import torch.utils.data as D
 
-dataset = './FB15K-237/'
+data_dir = './FB15K-237/'
 train_path = './FB15K-237/train.txt'
-corpus = data.Corpus(dataset)
+corpus = data.Corpus(data_dir)
 
-test_len = 2000
-ids = corpus.train[0:test_len]
+# test_len = 2000
+# pos = corpus.train[0:test_len]
 pos = corpus.train
-neg = corpus.negTriple
-trainLength = len(corpus.train) + len(corpus.negTriple)
+# neg = corpus.negTriple
+trainLength = len(corpus.train) # + len(corpus.negTriple)
 nEntity = len(corpus.entity2id)  # entity and relation size
 nRelation = len(corpus.relation2id)  # entity and relation size
 entityDic = corpus.entity2id
 
+# with open(os.path.join(data_dir, 'entity2id.txt'), 'r', encoding='utf-8') as f:
+#     nEntity = len(f.readlines())
+#
+# with open(os.path.join(data_dir, 'entity2id.txt'), 'r', encoding='utf-8') as f:
+#     entity_id_map = {x.strip().split('\t')[0]: int(x.strip().split('\t')[1]) for x in f.readlines()}
+#     id_entity_map = {v: k for k, v in entity_id_map.items()}
+#
+# print("N_ENTITY: %d" % nEntity)
+#
+# with open(os.path.join(data_dir, 'relation2id.txt'), 'r', encoding='utf-8') as f:
+#     nRelation = len(f.readlines())
+#
+# with open(os.path.join(data_dir, 'relation2id.txt'), 'r', encoding='utf-8') as f:
+#     relation_id_map = {x.strip().split('\t')[0]: int(x.strip().split('\t')[1]) for x in f.readlines()}
+#     id_relation_map = {v: k for k, v in entity_id_map.items()}
+#
+# print("N_RELATION: %d" % nRelation)
+
 # Hyper Parameters
-nEmbed = 20
+nEmbed = 20     # 100
 eval_batch_size = 10
 batch_size = 20
 train_data = corpus.train
@@ -195,6 +214,6 @@ best_val_loss = None
 # train()
 # test(test_data)
 def restore_param():
-    model.load_state_dict(torch.load('prijE_params_60.pkl'))
+    model.load_state_dict(torch.load('projE_params.pkl'))
     train()
     test(test_data)

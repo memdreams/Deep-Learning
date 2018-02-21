@@ -26,7 +26,7 @@ class Corpus(object):
         self.entity2id = self.build_dict(os.path.join(path, 'entity2id.txt'))
         self.relation2id = self.build_dict(os.path.join(path, 'relation2id.txt'))
         self.train = self.tokenize(os.path.join(path, 'train.txt'))
-        self.negTriple = self.tokenize(os.path.join(path, 'train_neg.txt'))
+        # self.negTriple = self.tokenize(os.path.join(path, 'train_neg.txt'))
         self.valid = self.tokenize(os.path.join(path, 'valid.txt'))
         self.test = self.tokenize(os.path.join(path, 'test.txt'))
 
@@ -61,10 +61,8 @@ class Corpus(object):
                 token += 1
         return ids
 
-data = Corpus('./FB15K')
 # train = data.train
 # test = data.test
-path = "./FB15K"
 # train_file = open(os.path.join(path, "trainIdData.txt"), 'w')
 # valid_file = open(os.path.join(path, "validIdData.txt"), 'w')
 # test_file = open(os.path.join(path, "testIdData.txt"), 'w')

@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 
 class ProjE(nn.Module):
-    def __init__(self, nEntity, nRelation, nEmbedding, margin=1):
+    def __init__(self, nEntity, nRelation, nEmbedding=100, dropout=0.5, margin=1):
         super(ProjE, self).__init__()
+        self.drop = nn.Dropout(dropout)
         self.margin = margin
         self.embedEntity = nn.Embedding(nEntity, nEmbedding)
         self.embedRelation = nn.Embedding(nRelation, nEmbedding)
