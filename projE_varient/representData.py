@@ -55,9 +55,9 @@ class Corpus(object):
             token = 0
             for line in f:
                 words = line.split() + ['<eos>']
-                ids[token][0] = self.entity2id.word2idx[words[0]]
-                ids[token][1] = self.relation2id.word2idx[words[2]]
-                ids[token][2] = self.entity2id.word2idx[words[1]]
+                ids[token][0] = self.entity2id.word2idx.get(words[0], tokens)
+                ids[token][1] = self.relation2id.word2idx[words[1]]
+                ids[token][2] = self.entity2id.word2idx.get(words[0], tokens+1)
                 token += 1
         return ids
 

@@ -208,11 +208,12 @@ best_val_loss = None
 
 # Run on test data.
 # valid_loss = evaluate(val_data)
-
-
+#
+#
 # test_loss = test(test_data)
-# train()
-# test(test_data)
+train()
+test(test_data)
+
 def restore_param():
     model.load_state_dict(torch.load('projE_params.pkl'))
     train()
