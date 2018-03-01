@@ -64,6 +64,7 @@ model = projE_Variant.ProjE(nEntity, nRelation, nEmbed)
 def loss_func(data):
     loss = torch.sum(data*data, 1)/2/data.data.shape[1]
     return loss
+lossFunc = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 def pickNegTriple(posTriple):
@@ -127,7 +128,7 @@ def train():
                 print('Epoch [%d/%d], Step[%d/%d], Loss: %.3f, Total Loss: %.4f' %
                       (epoch + 1, epochs, interval, batch_size, loss.data[0], total_loss[0]))
 
-    torch.save(model.state_dict(), 'transE_params_65.pkl')   # 只保存网络中的参数 (速度快, 占内存少)
+    torch.save(model.state_dict(), 'projE_params.pkl')   # 只保存网络中的参数 (速度快, 占内存少)
 
 def evaluate(data_source):
     # Turn on evaluation mode which disables dropout.
@@ -216,10 +217,12 @@ best_val_loss = None
 #
 #
 # test_loss = test(test_data)
-train()
-test(test_data)
+# train()
+# test(test_data)
 
 def restore_param():
     model.load_state_dict(torch.load('projE_params.pkl'))
     train()
     test(test_data)
+
+restore_param()
