@@ -21,28 +21,33 @@ nEntity = len(corpus.entity2id)  # entity and relation size
 nRelation = len(corpus.relation2id)  # entity and relation size
 entityDic = corpus.entity2id
 
-# with open(os.path.join(data_dir, 'entity2id.txt'), 'r', encoding='utf-8') as f:
-#     nEntity = len(f.readlines())
-#
-# with open(os.path.join(data_dir, 'entity2id.txt'), 'r', encoding='utf-8') as f:
-#     entity_id_map = {x.strip().split('\t')[0]: int(x.strip().split('\t')[1]) for x in f.readlines()}
-#     id_entity_map = {v: k for k, v in entity_id_map.items()}
-#
-# print("N_ENTITY: %d" % nEntity)
-#
-# with open(os.path.join(data_dir, 'relation2id.txt'), 'r', encoding='utf-8') as f:
-#     nRelation = len(f.readlines())
-#
-# with open(os.path.join(data_dir, 'relation2id.txt'), 'r', encoding='utf-8') as f:
-#     relation_id_map = {x.strip().split('\t')[0]: int(x.strip().split('\t')[1]) for x in f.readlines()}
-#     id_relation_map = {v: k for k, v in entity_id_map.items()}
-#
-# print("N_RELATION: %d" % nRelation)
+
+def gen_hr_t(triple_data):
+    hr_t = dict()
+    for h, t, r in triple_data:
+        if h not in hr_t:
+            hr_t[h] = dict()
+        if r not in hr_t[h]:
+            hr_t[h][r] = set()
+        hr_t[h][r].add(t)
+
+    return hr_t
+
+
+def gen_tr_h(triple_data):
+    tr_h = dict()
+    for h, t, r in triple_data:
+        if t not in tr_h:
+            tr_h[t] = dict()
+        if r not in tr_h[t]:
+            tr_h[t][r] = set()
+        tr_h[t][r].add(h)
+    return tr_h
 
 # Hyper Parameters
 nEmbed = 20     # 100
 eval_batch_size = 10
-batch_size = 20
+batch_size = 10  # 20
 train_data = corpus.train
 val_data = corpus.valid
 test_data = corpus.test

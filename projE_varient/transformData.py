@@ -1,6 +1,8 @@
 import os
 
 path = "./FB15K-237"
+train_rawdata = "train.txt"
+test_rawdata = "test.txt"
 file = open(os.path.join(path, "train.txt"))
 
 # file.read()
