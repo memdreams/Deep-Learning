@@ -20,6 +20,7 @@ trainLength = len(corpus.train) # + len(corpus.negTriple)
 nEntity = len(corpus.entity2id)  # entity and relation size
 nRelation = len(corpus.relation2id)  # entity and relation size
 entityDic = corpus.entity2id
+isHeadFlag = 0
 
 
 def gen_hr_t(triple_data):
@@ -47,11 +48,11 @@ def gen_tr_h(triple_data):
 # Hyper Parameters
 nEmbed = 20     # 100
 eval_batch_size = 10
-batch_size = 10  # 20
+batch_size = 30  # 20
 train_data = corpus.train
 val_data = corpus.valid
 test_data = corpus.test
-epochs = 5
+epochs = 25
 num_samples = 1000
 clip = 5
 margin = 1
@@ -62,9 +63,11 @@ model = projE_Variant.ProjE(nEntity, nRelation, nEmbed)
 
 # loss_func = nn.MSELoss()
 def loss_func(data):
-    loss = torch.sum(data*data, 1)/2/data.data.shape[1]
+    loss = torch.sum(torch.log(data))
     return loss
+
 lossFunc = torch.nn.CrossEntropyLoss()
+lossFunc = torch.nn.BCEWithLogitsLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 def pickNegTriple(posTriple):
@@ -98,12 +101,14 @@ def train():
         for i, triple in enumerate(train_loader):
             # loss = 0
             #Get batch inputs and targets
-            # pos_inputs = Variable(pos[i:i+batch_size])
+            targets = Variable(torch.cat((torch.ones(triple.shape[0], 1), torch.zeros(triple.shape[0], 1))))
 
-            # pos_head = triple[:, 0]
-            # relation = triple[:, 1]
-            # pos_tail = triple[:, 2]
             neg_triples = pickNegTriple(triple)
+            # output_triples = torch.cat((triple, neg_triples), 0)
+            # triples = Variable(output_triples)
+            # outputs = model(triples, flag=isHeadFlag)
+            # loss = lossFunc(outputs, targets)
+
             pos_triples = Variable(triple)
             neg_triples = Variable(neg_triples)
 
@@ -112,11 +117,12 @@ def train():
             pos_outputs = model(pos_triples)
             neg_outputs = model(neg_triples)
             loss_pos = loss_func(pos_outputs)
-            loss_neg = loss_func(neg_outputs)
+            loss_neg = loss_func(1-neg_outputs)
 
-            loss = margin + loss_pos - loss_neg
-            loss = F.relu(loss)
-            loss = torch.sum(loss)
+
+            loss = -loss_pos - loss_neg
+            # loss = F.relu(loss)
+            # loss = torch.sum(loss)
             loss.backward(retain_graph=True)
             torch.nn.utils.clip_grad_norm(model.parameters(), clip)
             optimizer.step()
@@ -128,7 +134,7 @@ def train():
                 print('Epoch [%d/%d], Step[%d/%d], Loss: %.3f, Total Loss: %.4f' %
                       (epoch + 1, epochs, interval, batch_size, loss.data[0], total_loss[0]))
 
-    torch.save(model.state_dict(), 'projE_params.pkl')   # 只保存网络中的参数 (速度快, 占内存少)
+    torch.save(model.state_dict(), 'projE_params_50.pkl')   # 只保存网络中的参数 (速度快, 占内存少)
 
 def evaluate(data_source):
     # Turn on evaluation mode which disables dropout.
@@ -180,7 +186,7 @@ def test(testData):
             print(mrr / (i + 1))
             print("Hit 10 (Raw) per 10 test triples:----")
             print(hit10 / (i + 1))
-
+        #
         if i % 100 == 0:
             print("Hit 10 (Raw) per 100 test triples:----")
             print(hit10 / (i + 1))
@@ -217,12 +223,12 @@ best_val_loss = None
 #
 #
 # test_loss = test(test_data)
-# train()
-# test(test_data)
+train()
+test(test_data)
 
 def restore_param():
-    model.load_state_dict(torch.load('projE_params.pkl'))
+    model.load_state_dict(torch.load('projE_params_25.pkl'))
     train()
     test(test_data)
 
-restore_param()
+# restore_param()
